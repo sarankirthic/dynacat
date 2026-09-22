@@ -24,7 +24,7 @@ services:
       - internal
 
   cloudflared:
-    image: cloudflare/cloudflared:latest
+    image: cloudflare/cloudflared:2026.9.1
     container_name: cloudflared
     restart: unless-stopped
     command: tunnel --no-autoupdate run
