@@ -1,0 +1,44 @@
+services:
+  dynacat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dynacat
+    restart: unless-stopped
+    environment:
+      ENABLE_DYNAMIC_UPDATE: "true"
+      TZ: Asia/Kolkata
+      AUTH_SECRET_KEY: ${AUTH_SECRET_KEY}
+      ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH}
+    volumes:
+      - ./config:/app/config
+      - dynacat_assets:/app/assets
+      - /etc/localtime:/etc/localtime:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    networks:
+      - internal
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      dynacat:
+        condition: service_healthy
+    networks:
+      - internal
+
+volumes:
+  dynacat_assets:
+
+networks:
+  internal:
+    driver: bridge

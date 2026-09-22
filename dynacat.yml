@@ -1,0 +1,23 @@
+server:
+  proxied: true   # required behind the cloudflared tunnel, so brute-force
+                   # protection reads the real client IP from X-Forwarded-For
+
+auth:
+  secret-key: ${AUTH_SECRET_KEY}       # generate: docker run --rm panonim/dynacat secret:make
+  users:
+    admin:
+      password-hash: ${ADMIN_PASSWORD_HASH}   # generate: docker run --rm panonim/dynacat password:hash 'yourpassword'
+
+pages:
+  - name: Home
+    columns:
+      - size: small
+        widgets:
+          - type: calendar
+            first-day-of-week: monday
+
+      - size: full
+        widgets:
+          - type: clock
+            hour-format: 24h
+          - type: hacker-news
